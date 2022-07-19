@@ -27,6 +27,12 @@ from models import *
 
 # used for formatting user time input
 
+app = Flask(__name__)
+moment = Moment(app)
+app.config.from_object('config')
+db.init_app(app)  # Just initiate it here.
+migrate = Migrate(app, db)
+
 
 def format_datetime(value, format='medium'):
     date = dateutil.parser.parse(value)
@@ -159,7 +165,7 @@ def show_venue(venue_id):
                     "artist_id": show.artist_id,
                     "artist_name": Artist.query.filter_by(id=show.artist_id).first().name,
                     "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
-                    "start_time": format_datetime(str(show.start_time))
+                    "start_time": str(show.start_time)
                 })
         return upcoming
 
@@ -174,7 +180,7 @@ def show_venue(venue_id):
                     "artist_id": show.artist_id,
                     "artist_name": Artist.query.filter_by(id=show.artist_id).first().name,
                     "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
-                    "start_time": format_datetime(str(show.start_time))
+                    "start_time": str(show.start_time)
                 })
         return past
 
@@ -207,7 +213,7 @@ def show_venue(venue_id):
 # get the create venue form
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
-    form = VenueForm()
+    form = VenueForm(request.form)
     return render_template('forms/new_venue.html', form=form)
 
 # post handler for venue creation
@@ -217,7 +223,7 @@ def create_venue_submission():
     # use try-except block to catch exceptions
     try:
         # load data from user input on submit
-        form = VenueForm()
+        form = VenueForm(request.form)
         name = form.name.data
         city = form.city.data
         state = form.state.data
@@ -227,7 +233,7 @@ def create_venue_submission():
         phone_validator(phone)
         genres = form.genres.data
         facebook_link = form.facebook_link.data
-        website = form.website.data
+        website = form.website_link.data
         image_link = form.image_link.data
         seeking_talent = True if form.seeking_talent.data == 'Yes' else False
         seeking_description = form.seeking_description.data
@@ -423,7 +429,7 @@ def show_artist(artist_id):
 # route handler for GET edit artist form
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-    form = ArtistForm()
+    form = ArtistForm(request.form)
 
     # get the matching artist by id
     artist = Artist.query.filter_by(id=artist_id).first()
@@ -457,7 +463,7 @@ def edit_artist_submission(artist_id):
 
     # catch exceptions with try-except block
     try:
-        form = ArtistForm()
+        form = ArtistForm(request.form)
 
         # get the current artist by id
         artist = Artist.query.filter_by(id=artist_id).first()
@@ -503,7 +509,7 @@ def edit_artist_submission(artist_id):
 # handler for venue edit GET
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
-    form = VenueForm()
+    form = VenueForm(request.form)
 
     # get the venue by id
     venue = Venue.query.filter_by(id=venue_id).first()
@@ -538,7 +544,7 @@ def edit_venue_submission(venue_id):
 
     # catch exceptions with try-except block
     try:
-        form = VenueForm()
+        form = VenueForm(request.form)
 
         # get venue by id
         venue = Venue.query.filter_by(id=venue_id).first()
@@ -586,7 +592,7 @@ def edit_venue_submission(venue_id):
 # artist creation GET route handler
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
-    form = ArtistForm()
+    form = ArtistForm(request.form)
 
     # return the new artist form
     return render_template('forms/new_artist.html', form=form)
@@ -597,7 +603,7 @@ def create_artist_submission():
 
     # catch exceptions with try-except block
     try:
-        form = ArtistForm()
+        form = ArtistForm(request.form)
         name = form.name.data
         city = form.city.data
         state = form.state.data
@@ -689,7 +695,7 @@ def shows():
             "artist_id": show.artist_id,
             "artist_name": Artist.query.filter_by(id=show.artist_id).first().name,
             "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
-            "start_time": format_datetime(str(show.start_time))
+            "start_time": str(show.start_time)
         })
 
     # return shows page with show data
@@ -699,7 +705,7 @@ def shows():
 @app.route('/shows/create')
 def create_shows():
     # renders form. do not touch.
-    form = ShowForm()
+    form = ShowForm(request.form)
     return render_template('forms/new_show.html', form=form)
 
 # POST handler for show create
