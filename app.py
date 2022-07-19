@@ -612,7 +612,7 @@ def create_artist_submission():
         phone_validator(phone)
         genres = form.genres.data
         facebook_link = form.facebook_link.data
-        website = form.website.data
+        website = form.website_link.data
         image_link = form.image_link.data
         seeking_venue = True if form.seeking_venue.data == 'Yes' else False
         seeking_description = form.seeking_description.data
